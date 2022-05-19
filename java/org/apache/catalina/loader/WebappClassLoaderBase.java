@@ -1845,41 +1845,13 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                     // shutting down the executor
                     boolean usingExecutor = false;
                     try {
-
-                        // Runnable wrapped by Thread
-                        // "target" in Sun/Oracle JDK
-                        // "runnable" in IBM JDK
-                        // "action" in Apache Harmony
-                        Object target = null;
-                        for (String fieldName : new String[] { "target", "runnable", "action" }) {
-                            try {
-                                Field targetField = thread.getClass().getDeclaredField(fieldName);
-                                targetField.setAccessible(true);
-                                target = targetField.get(thread);
-                                break;
-                            } catch (NoSuchFieldException nfe) {
-                                continue;
-                            }
-                        }
-
-                        // "java.util.concurrent" code is in public domain,
-                        // so all implementations are similar including our
-                        // internal fork.
-                        if (target != null && target.getClass().getCanonicalName() != null &&
-                                (target.getClass().getCanonicalName().equals(
-                                        "org.apache.tomcat.util.threads.ThreadPoolExecutor.Worker") ||
-                                        target.getClass().getCanonicalName().equals(
-                                                "java.util.concurrent.ThreadPoolExecutor.Worker"))) {
-                            Field executorField = target.getClass().getDeclaredField("this$0");
-                            executorField.setAccessible(true);
-                            Object executor = executorField.get(target);
-                            if (executor instanceof ThreadPoolExecutor) {
-                                ((ThreadPoolExecutor) executor).shutdownNow();
-                                usingExecutor = true;
-                            } else if (executor instanceof java.util.concurrent.ThreadPoolExecutor) {
-                                ((java.util.concurrent.ThreadPoolExecutor) executor).shutdownNow();
-                                usingExecutor = true;
-                            }
+                        Object executor = JreCompat.getInstance().getExecutor(thread);
+                        if (executor instanceof ThreadPoolExecutor) {
+                            ((ThreadPoolExecutor) executor).shutdownNow();
+                            usingExecutor = true;
+                        } else if (executor instanceof java.util.concurrent.ThreadPoolExecutor) {
+                            ((java.util.concurrent.ThreadPoolExecutor) executor).shutdownNow();
+                            usingExecutor = true;
                         }
                     } catch (SecurityException | NoSuchFieldException | IllegalArgumentException |
                             IllegalAccessException | InaccessibleObjectException e) {
@@ -2053,7 +2025,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
         } catch (InaccessibleObjectException e) {
             // Must be running on without the necessary command line options.
-            log.warn(sm.getString("webappClassLoader.addExportsThreadLocal", this.getClass().getModule().getName()));
+            log.warn(sm.getString("webappClassLoader.addExportsThreadLocal", getCurrentModuleName()));
         } catch (Throwable t) {
             ExceptionUtils.handleThrowable(t);
             log.warn(sm.getString(
@@ -2311,12 +2283,18 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                     getContextName()), e);
         } catch (InaccessibleObjectException e) {
             // Must be running on without the necessary command line options.
-            log.warn(sm.getString("webappClassLoader.addExportsRmi", this.getClass().getModule().getName()));
+            log.warn(sm.getString("webappClassLoader.addExportsRmi", getCurrentModuleName()));
         }
     }
 
 
     private void clearReferencesObjectStreamClassCaches() {
+        if (JreCompat.isJre19Available()) {
+            // The memory leak this fixes has been fixed in Java 19 onwards,
+            // 17.0.4 onwards and 11.0.16 onwards
+            // See https://bugs.openjdk.java.net/browse/JDK-8277072
+            return;
+        }
         try {
             Class<?> clazz = Class.forName("java.io.ObjectStreamClass$Caches");
             clearCache(clazz, "localDescs");
@@ -2326,8 +2304,17 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                     "webappClassLoader.clearObjectStreamClassCachesFail", getContextName()), e);
         } catch (InaccessibleObjectException e) {
             // Must be running on without the necessary command line options.
-            log.warn(sm.getString("webappClassLoader.addExportsJavaIo", this.getClass().getModule().getName()));
+            log.warn(sm.getString("webappClassLoader.addExportsJavaIo", getCurrentModuleName()));
         }
+    }
+
+
+    private String getCurrentModuleName() {
+        String moduleName = this.getClass().getModule().getName();
+        if (moduleName == null) {
+            moduleName = "ALL-UNNAMED";
+        }
+        return moduleName;
     }
 
 
@@ -2335,14 +2322,19 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             throws ReflectiveOperationException, SecurityException, ClassCastException {
         Field f = target.getDeclaredField(mapName);
         f.setAccessible(true);
-        Map<?,?> map = (Map<?,?>) f.get(null);
-        Iterator<?> keys = map.keySet().iterator();
-        while (keys.hasNext()) {
-            Object key = keys.next();
-            if (key instanceof Reference) {
-                Object clazz = ((Reference<?>) key).get();
-                if (loadedByThisOrChild(clazz)) {
-                    keys.remove();
+        Object map = f.get(null);
+        // Avoid trying to clear references if Tomcat is running on a JRE that
+        // includes the fix for this memory leak
+        // See https://bugs.openjdk.java.net/browse/JDK-8277072
+        if (map instanceof Map<?,?>) {
+            Iterator<?> keys = ((Map<?,?>) map).keySet().iterator();
+            while (keys.hasNext()) {
+                Object key = keys.next();
+                if (key instanceof Reference) {
+                    Object clazz = ((Reference<?>) key).get();
+                    if (loadedByThisOrChild(clazz)) {
+                        keys.remove();
+                    }
                 }
             }
         }

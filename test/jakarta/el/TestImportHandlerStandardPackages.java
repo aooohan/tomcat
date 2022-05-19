@@ -54,7 +54,7 @@ public class TestImportHandlerStandardPackages {
             // The intention is that this test will catch new classes when the
             // tests are run on a newer JRE.
             // The latest version of the JRE where this test is known to pass is
-            // - OpenJDK 17 EA 28
+            // - OpenJDK 19 EA 22
             ModuleFinder.ofSystem().find("java.base").get().open().list()
                     .filter(c -> (c.startsWith("java/lang/")))
                     .filter(c -> c.lastIndexOf('/') == 9)             // Exclude sub-packages
@@ -62,11 +62,13 @@ public class TestImportHandlerStandardPackages {
                     .map(c -> c.substring(10, c.length() - 6))        // Extract class name
                     .map(c-> {
                         try {
-                            return Class.forName("java.lang." + c);   // Get the class object
+                            return Class.forName("java.lang." + c, false,
+                                    TesterImportHandlerPerformance.class.getClassLoader());   // Get the class object
                         } catch (ClassNotFoundException e) {
-                            throw new RuntimeException();
+                            throw new RuntimeException(c);
                         }
                     })
+                    .filter(c -> null != c)
                     .filter(c -> Modifier.isPublic(c.getModifiers())) // Exclude non-public classes
                     .map(c -> c.getName().substring(10))              // Back to the class name
                     .map(c -> c.replace('$',  '.'))

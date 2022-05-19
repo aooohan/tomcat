@@ -105,8 +105,62 @@
   issues do not "pop up" wrt. others).
 -->
 <section name="Tomcat 10.1.0-M16 (markt)" rtext="in development">
+  <subsection name="Catalina">
+    <changelog>
+      <fix>
+        Update the memory leak protection code to support stopping application
+        created executor threads when running on Java 19 and later. (markt)
+      </fix>
+      <fix>
+        Improve the error message if a required <code>--add-opens</code> option
+        is missing. (markt)
+      </fix>
+      <fix>
+        Disable the memory leak correction code enabled by the Context attribute
+        <code>clearReferencesObjectStreamClassCaches</code> when running on a
+        JRE that includes a fix for the underlying memory leak. (markt)
+      </fix>
+      <fix>
+        <pr>515</pr>: Avoid deadlock on startup with some utility executor
+        configurations. Submitted by Han Li. (remm)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Jasper">
+    <changelog>
+      <fix>
+        Update XML schema used for generated web fragments to use the Servlet
+        6.0 web fragment schema. (markt)
+      </fix>
+      <fix>
+        Update the XML schema used by the web fragment defined for the Jasper EL
+        JAR to use the Servlet 6.0 web fragment schema. (markt)
+      </fix>
+      <fix>
+        Update <code>ImportHandler</code> optimisation for new classes
+        introduced in Java 19. (markt)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Web Socket">
+    <changelog>
+      <fix>
+        Update the XML schema used by the web fragment defined for the WebSocket
+        JAR to use the Servlet 6.0 web fragment schema. (markt)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Web applications">
+    <changelog>
+      <fix>
+        <bug>66064</bug>: Update the building page in the documentation web
+        application to reflect changes in required Java version and source
+        repository. (markt)
+      </fix>
+    </changelog>
+  </subsection>
 </section>
-<section name="Tomcat 10.1.0-M15 (markt)" rtext="release in progress">
+<section name="Tomcat 10.1.0-M15 (markt)" rtext="2022-05-16">
   <subsection name="Catalina">
     <changelog>
       <scode>
