@@ -31,6 +31,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jakarta.servlet.ServletConnection;
 
@@ -59,6 +61,7 @@ public abstract class SocketWrapperBase<E> {
 
     private E socket;
     private final AbstractEndpoint<E,?> endpoint;
+    private final Lock lock = new ReentrantLock();
 
     protected final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -153,6 +156,10 @@ public abstract class SocketWrapperBase<E> {
 
     protected AbstractEndpoint<E,?> getEndpoint() {
         return endpoint;
+    }
+
+    public Lock getLock() {
+        return lock;
     }
 
     public Object getCurrentProcessor() {
@@ -725,26 +732,7 @@ public abstract class SocketWrapperBase<E> {
     }
 
 
-    protected boolean flushNonBlocking() throws IOException {
-        boolean dataLeft = !socketBufferHandler.isWriteBufferEmpty();
-
-        // Write to the socket, if there is anything to write
-        if (dataLeft) {
-            doWrite(false);
-            dataLeft = !socketBufferHandler.isWriteBufferEmpty();
-        }
-
-        if (!dataLeft && !nonBlockingWriteBuffer.isEmpty()) {
-            dataLeft = nonBlockingWriteBuffer.write(this, false);
-
-            if (!dataLeft && !socketBufferHandler.isWriteBufferEmpty()) {
-                doWrite(false);
-                dataLeft = !socketBufferHandler.isWriteBufferEmpty();
-            }
-        }
-
-        return dataLeft;
-    }
+    protected abstract boolean flushNonBlocking() throws IOException;
 
 
     /**

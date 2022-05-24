@@ -126,6 +126,15 @@
       </fix>
     </changelog>
   </subsection>
+  <subsection name="Coyote">
+    <changelog>
+      <scode>
+        Refactor synchronization blocks locking on <code>SocketWrapper</code> to
+        use <code>ReentrantLock</code> to support users wishing to experiment
+        with project Loom. (markt)
+      </scode>
+    </changelog>
+  </subsection>
   <subsection name="Jasper">
     <changelog>
       <fix>
@@ -156,6 +165,15 @@
         <bug>66064</bug>: Update the building page in the documentation web
         application to reflect changes in required Java version and source
         repository. (markt)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Tribes">
+    <changelog>
+      <fix>
+        Increase the default buffer size for replication messages from 43800 to
+        65536 bytes. This is expected to improve performance for large messages
+        when running on Linux based systems. (markt)
       </fix>
     </changelog>
   </subsection>
