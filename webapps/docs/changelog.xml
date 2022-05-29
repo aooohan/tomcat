@@ -124,15 +124,39 @@
         <pr>515</pr>: Avoid deadlock on startup with some utility executor
         configurations. Submitted by Han Li. (remm)
       </fix>
+      <fix>
+        <bug>66068</bug>: Ensure that the changes made to a request by the
+        <code>RemoteIPValve</code> persist after the request is put into
+        asynchronous mode. (markt)
+      </fix>
     </changelog>
   </subsection>
   <subsection name="Coyote">
     <changelog>
+      <fix>
+        Additional fix for <bug>65118</bug>. Fix a potential
+        <code>NullPointerException</code> when pruning closed HTTP/2 streams
+        from the connection. (markt)
+      </fix>
       <scode>
         Refactor synchronization blocks locking on <code>SocketWrapper</code> to
         use <code>ReentrantLock</code> to support users wishing to experiment
         with project Loom. (markt)
       </scode>
+      <fix>
+        <bug>66076</bug>: When using TLS with non-blocking writes and the NIO
+        connector, ensure that flushing the buffers attempts to empty all of the
+        output buffers. (markt)
+      </fix>
+      <fix>
+        <bug>66084</bug>: Correctly calculate bytes written to a response. Pull
+        request <pr>516</pr> provided by aooohan HanLi. (markt)
+      </fix>
+      <add>
+        Correct a regression in the support added for encrypted PKCS#1 formatted
+        private keys in the previous release that broke support for unencrypted
+        PKCS#1 formatted private keys. (jfclere/markt)
+      </add>
     </changelog>
   </subsection>
   <subsection name="Jasper">
@@ -165,6 +189,11 @@
         <bug>66064</bug>: Update the building page in the documentation web
         application to reflect changes in required Java version and source
         repository. (markt)
+      </fix>
+      <fix>
+        Documentation. Make the description of the HTTP/1.1 configuration
+        attributes that control the maximum allowed HTTP header size more
+        specific. (markt)
       </fix>
     </changelog>
   </subsection>
