@@ -137,6 +137,18 @@
         default value for the <code>jmvRoute</code> attribute of an Engine.
         (markt)
       </scode>
+      <update>
+        Update experimental Panama modules with support for OpenSSL 3.0+.
+        OpenSSL 1.1 remains supported. (remm)
+      </update>
+      <fix>
+        Correct a regression in the refactoring to support experimentation with
+        project Loom that broke HTTP/2 support if async IO was disabled. (markt)
+      </fix>
+      <fix>
+        Fix duplicate Poller registration with HTTP/2, NIO and async IO that
+        could cause HTTP/2 connections to unexpectedly fail. (markt)
+      </fix>
     </changelog>
   </subsection>
   <subsection name="Jasper">
@@ -164,6 +176,15 @@
       <fix>
         Documentation. <bug>62245</bug>: Include <code>contextXsltFile</code>
         when discussing options for configuring directory listings. (markt)
+      </fix>
+      <fix>
+        Examples. Fix CVE-2022-34305, a low severity XSS vulnerability in the
+        Form authentication example. (markt)
+      </fix>
+      <fix>
+        Documentation. Expand the description of the <code>useSendfile</code>
+        attribute for HTTP/2 and reference the possibility of file locking when
+        using this feature on Windows operating systems. (markt)
       </fix>
     </changelog>
   </subsection>
