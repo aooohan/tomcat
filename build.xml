@@ -2000,6 +2000,8 @@
           <jvmarg value="${java17.nativeaccess}"/>
           <jvmarg value="${java17.addmodules}"/>
           <jvmarg value="${java17.incubatorforeign}"/>
+          <jvmarg value="-Duser.language=en"/>
+          <jvmarg value="-Duser.country=US"/>
 
           <classpath refid="tomcat.test.classpath" />
 
