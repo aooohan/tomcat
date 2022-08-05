@@ -956,6 +956,10 @@ public class Http11InputBuffer implements InputBuffer, ApplicationBufferHandler 
                     if (!(chr == Constants.SP || chr == Constants.HT)) {
                         headerParsePos = HeaderParsePosition.HEADER_VALUE;
                         byteBuffer.position(byteBuffer.position() - 1);
+                        // Avoids prevChr = chr at start of header value
+                        // parsing which causes problems when chr is CR
+                        // (in the case of an empty header value)
+                        chr = 0;
                         break;
                     }
                 }
@@ -976,7 +980,8 @@ public class Http11InputBuffer implements InputBuffer, ApplicationBufferHandler 
 
                     prevChr = chr;
                     chr = byteBuffer.get();
-                    if (chr == Constants.CR) {
+                    if (chr == Constants.CR && prevChr != Constants.CR) {
+                        // CR is only permitted at the start of a CRLF sequence.
                         // Possible start of CRLF - process the next byte.
                     } else if (chr == Constants.LF) {
                         // CRLF or LF is an acceptable line terminator

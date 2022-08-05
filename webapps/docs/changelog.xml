@@ -104,7 +104,50 @@
   They eventually become mixed with the numbered issues (i.e., numbered
   issues do not "pop up" wrt. others).
 -->
-<section name="Tomcat 10.1.0-M17 (markt)" rtext="in development">
+<section name="Tomcat 10.1.0-M18 (markt)" rtext="in development">
+  <subsection name="Catalina">
+    <changelog>
+      <fix>
+        Correct handling of HTTP TRACE requests where there are multiple
+        instances of an HTTP header with the same name. (markt)
+      </fix>
+      <fix>
+        Implement the requirements of RFC 7231 and do not include sensitive
+        headers in responses to HTTP TRACE requests. (markt)
+      </fix>
+      <fix>
+        Implement the clarification in RFC 9110 that the units in HTTP range
+        specifiers are case insensitive. (markt)
+      </fix>
+      <fix>
+        Properly-escape role and group information when writing
+        MemoryUserDatabase to an XML file. (schultz)
+      </fix>
+      <fix>
+        Move control of XML-export logic from individual support classes into
+        MemoryUserDatabase.save(). Deprecate and discontinue use of MemoryUser,
+        MemoryRole, and MemoryGroup classes. (schultz)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Coyote">
+    <changelog>
+      <fix>
+        Avoid potential NPE by skipping duplicate accept check when using a Unix
+        Domain Socket. Based on <pr>532</pr> by Han Li. (markt)
+      </fix>
+      <fix>
+        Address an edge case in HTTP header parsing that allowed CRCRLF to be
+        used as a valid line terminator. (markt)
+      </fix>
+      <fix>
+        Ensure HTTP/2 requests that include connection specific headers are
+        rejected. (markt)
+      </fix>
+    </changelog>
+  </subsection>
+</section>
+<section name="Tomcat 10.1.0-M17 (markt)" rtext="2022-07-20">
   <subsection name="Catalina">
     <changelog>
       <fix>
@@ -133,8 +176,8 @@
         (markt)
       </add>
       <scode>
-        Remove the <code>jmvRoute</code> system property used to configure a
-        default value for the <code>jmvRoute</code> attribute of an Engine.
+        Remove the <code>jvmRoute</code> system property used to configure a
+        default value for the <code>jvmRoute</code> attribute of an Engine.
         (markt)
       </scode>
       <update>
@@ -149,6 +192,15 @@
         Fix duplicate Poller registration with HTTP/2, NIO and async IO that
         could cause HTTP/2 connections to unexpectedly fail. (markt)
       </fix>
+      <update>
+        Refactor Panama module to better take advantage of the Panama preview
+        API updates and fixes. Improves memory session usage and avoids some
+        allocations. Review from Maurizio Cimadamore. (remm)
+      </update>
+      <update>
+        Update the minimum recommended version of the Tomcat Native Library to
+        2.0.1. (markt)
+      </update>
     </changelog>
   </subsection>
   <subsection name="Jasper">
@@ -209,10 +261,6 @@
         manifests. (markt)
       </add>
       <update>
-        Update the packaged version of the Tomcat Native Library to 1.2.34 to
-        improve the support for building with OpenSSL 3.0.x.(markt)
-      </update>
-      <update>
         Update the minimum supported version of Tomcat Native to 1.2.34 to allow
         the removal of the deprecated Java API associated with features that
         will be removed in Tomcat Native 2.0.x. (markt)
@@ -222,8 +270,34 @@
         <code>org.apache.tomcat.util.threads.res</code> package. The
         <code>LocalStrings*.properties</code> files in that package were moved
         to <code>org.apache.tomcat.util.threads</code> package for consistency
-        with the rest of the Tomcat code base.
+        with the rest of the Tomcat code base. (markt)
       </fix>
+      <fix>
+        <bug>66134</bug>: The NSIS based Tomcat installer for Windows now
+        correctly handles the combination of <code>TomcatAdminRoles</code>
+        defined in a configuration file and selecting the Manager and/or
+        Host Manager web applications in the installer's GUI. (markt)
+      </fix>
+      <update>
+        Update the OWB module to Apache OpenWebBeans 2.0.27. (remm)
+      </update>
+      <update>
+        Update the CXF module to Apache CXF 3.5.3. (remm)
+      </update>
+      <update>
+        Update the Apache Tomcat migration tool for Jakarta EE library to 1.0.1.
+        (markt)
+      </update>
+      <update>
+        Update the packaged version of the Tomcat Native Library to 2.0.1 to
+        pick up the Windows binaries built with with OpenSSL 3.0.5. (markt)
+      </update>
+      <add>
+        Improvements to French translations. (remm)
+      </add>
+      <add>
+        Improvements to Japanese translations contributed tak7iji. (markt)
+      </add>
     </changelog>
   </subsection>
 </section>

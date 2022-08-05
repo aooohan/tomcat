@@ -18,7 +18,7 @@ package org.apache.catalina.users;
 
 
 import org.apache.catalina.UserDatabase;
-
+import org.apache.tomcat.util.security.Escape;
 
 /**
  * <p>Concrete implementation of {@link org.apache.catalina.Role} for the
@@ -26,7 +26,9 @@ import org.apache.catalina.UserDatabase;
  *
  * @author Craig R. McClanahan
  * @since 4.1
+ * @deprecated Use {@link GenericRole} instead.
  */
+@Deprecated
 public class MemoryRole extends GenericRole<MemoryUserDatabase> {
 
 
@@ -50,11 +52,11 @@ public class MemoryRole extends GenericRole<MemoryUserDatabase> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("<role rolename=\"");
-        sb.append(rolename);
+        sb.append(Escape.xml(rolename));
         sb.append("\"");
         if (description != null) {
             sb.append(" description=\"");
-            sb.append(description);
+            sb.append(Escape.xml(description));
             sb.append("\"");
         }
         sb.append("/>");
